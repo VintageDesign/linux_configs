@@ -1,0 +1,12 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhistcnt =8
+let g:netrw_dirhist_8='/home/riley/git/vintagedesign.github.io/recipies/food'
+let g:netrw_dirhist_7='/home/riley/git/makesite/_site/recipies'
+let g:netrw_dirhist_6='/home/riley/git/makesite/_site'
+let g:netrw_dirhist_5='/home/riley/git/makesite/content/recipies'
+let g:netrw_dirhist_4='/home/riley/git/makesite/test'
+let g:netrw_dirhist_3='/home/riley/git/makesite/_site'
+let g:netrw_dirhist_2='/home/riley/git/makesite/content'
+let g:netrw_dirhist_1='/home/riley/git/makesite/test'
+let g:netrw_dirhist_0='/home/riley/git/makesite'
+let g:netrw_dirhist_9='/home/riley/git/makesite/test'
