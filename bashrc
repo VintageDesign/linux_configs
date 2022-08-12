@@ -2,6 +2,20 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
+export UNDERLINE=$(tput sgr 0 1)
+export BOLD=$(tput bold)
+export BLACK=$(tput setaf 0)
+export RED=$(tput setaf 1)
+export ORANGE=$(tput setaf 214)
+export GREEN=$(tput setaf 2)
+export YELLOW=$(tput setaf 3)
+export BLUE=$(tput setaf 4)
+export PURPLE=$(tput setaf 5)
+export CYAN=$(tput setaf 6)
+export WHITE=$(tput setaf 7)
+export GREY=$(tput setaf 245)
+export RESET=$(tput sgr0)
+
 # If not running interactively, don't do anything
 case $- in
     *i*) ;;
@@ -116,9 +130,29 @@ if ! shopt -oq posix; then
   fi
 fi
 
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/apps/pycharm/bin:$PATH"
 
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash
-alias get_idf='. $HOME/esp/esp-idf/export.sh'
+
+function __sysroot_ps1() {
+    if [ -n "$OECORE_TARGET_SYSROOT" ]; then
+        echo -en "[$(basename $OECORE_TARGET_SYSROOT)]"
+    fi
+}
 
 source ~/commands/utils.sh
+PS1="\[${RESET}${ORANGE}\]\$(__sysroot_ps1)\$(parse_git_branch) \[${RESET}\]${PS1}"
+
+
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
+alias fd="fdfind"
+
+PATH="${HOME}/.bin:${PATH}"
+PATH="${HOME}/git/tools-and-docs/bitbake-docker/:${PATH}"
+
+export FZF_DEFAULT_COMMAND="fd --type f"
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_ALT_C_COMMAND="fd -t d . $HOME"
+alias python='python3'
 

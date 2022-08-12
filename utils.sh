@@ -84,17 +84,7 @@ unix2dos()
     sed -i 's/$/\r/' "$1"
 }
 
-# Sets volume of system
-set_volume()
-{
-    amixer -D pulse sset Master $1%
-}
 
-connect_to_school()
-{
-
-sudo vpnc < ~./commands/vpn_values.txt
-}
 
 # Browse git log
 gl() {
@@ -108,6 +98,20 @@ gl() {
 FZF-EOF"
 }
 
-mount_plex(){
-   sudo sshfs -o allow_other,IdentityFile=/home/riley/.ssh/id_rsa riley@192.168.0.98:/home/riley/media media/
+
+#source daisy toolchain
+dey()
+{
+    source /opt/dey/1.6.11/environment-setup-cortexa9hf-vfp-neon-dey-linux-gnueabi
+}
+
+start_can()
+{
+    sudo ip link set can0 type can bitrate 250000
+    sudo ip link set can0 up
+
+}
+
+parse_git_branch() {
+     git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
 }
