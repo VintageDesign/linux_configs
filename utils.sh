@@ -115,3 +115,9 @@ start_can()
 parse_git_branch() {
      git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
 }
+
+clean_up_branches(){
+    git branch --merged >/tmp/merged-branches
+    vim /tmp/merged-branches
+    xargs git branch -d </tmp/merged-branches
+}
