@@ -1,0 +1,33 @@
+#!/bin/sh
+#
+# Called by "git commit" with no arguments.  The hook should
+# exit with non-zero status after issuing an appropriate message if
+# it wants to stop the commit.
+#
+# To enable this hook, rename this file to "pre-commit".
+
+for file in $(git diff --cached --name-only | grep -E '\.(cmake|txt)$')
+do
+    echo Formatting $file with cmake-format
+    cmake-format \
+        -i "$file"
+    git add $file
+    echo Done
+done
+for file in $(git diff --cached --name-only | grep -E '\.(py)$')
+do
+    echo Formatting $file with Black
+    black $file
+    git add $file
+    echo Done
+done
+for file in $(git diff --cached --name-only | grep -E '\.(cpp|h)$')
+do
+    echo Formatting $file with clang-format
+    clang-format-6.0 \
+            -style=file \
+            -i "$file"
+    git add $file
+    echo Done
+done
+
