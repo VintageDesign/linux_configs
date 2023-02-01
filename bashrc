@@ -1,20 +1,24 @@
 # ~/.bashrc: executed by bash(1) for non-login shells.
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
+case $- in *i*)
+    [ -z "$TMUX" ] && exec tmux
+esac
 
-export UNDERLINE=$(tput sgr 0 1)
-export BOLD=$(tput bold)
-export BLACK=$(tput setaf 0)
-export RED=$(tput setaf 1)
-export ORANGE=$(tput setaf 214)
-export GREEN=$(tput setaf 2)
-export YELLOW=$(tput setaf 3)
-export BLUE=$(tput setaf 4)
-export PURPLE=$(tput setaf 5)
-export CYAN=$(tput setaf 6)
-export WHITE=$(tput setaf 7)
-export GREY=$(tput setaf 245)
-export RESET=$(tput sgr0)
+if [[ $- == *i* ]]; then
+    export UNDERLINE=$(tput sgr 0 1)
+    export BOLD=$(tput bold)
+    export BLACK=$(tput setaf 0)
+    export RED=$(tput setaf 1)
+    export ORANGE=$(tput setaf 214)
+    export GREEN=$(tput setaf 2)
+    export YELLOW=$(tput setaf 3)
+    export BLUE=$(tput setaf 4)
+    export PURPLE=$(tput setaf 5)
+    export CYAN=$(tput setaf 6)
+    export WHITE=$(tput setaf 7)
+    export GREY=$(tput setaf 245)
+    export RESET=$(tput sgr0)
 
 # If not running interactively, don't do anything
 case $- in
@@ -78,13 +82,13 @@ fi
 unset color_prompt force_color_prompt
 
 # If this is an xterm set the title to user@host:dir
-case "$TERM" in
-xterm*|rxvt*)
-    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
-    ;;
-*)
-    ;;
-esac
+#case "$TERM" in
+#xterm*|rxvt*)
+#    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+#    ;;
+#*)
+#    ;;
+#esac
 
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
@@ -145,6 +149,7 @@ PS1="\[${RESET}${ORANGE}\]\$(__sysroot_ps1)\$(parse_git_branch) \[${RESET}\]${PS
 
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+[ -d ~/.fzf/bin ] && export PATH="$HOME/.fzf/bin:$PATH"
 
 alias fd="fdfind"
 
@@ -156,3 +161,6 @@ export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_ALT_C_COMMAND="fd -t d . $HOME"
 alias python='python3'
 
+. "$HOME/.cargo/env"
+
+fi
