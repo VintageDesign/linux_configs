@@ -105,11 +105,26 @@ dey()
     source /opt/dey/1.6.11/environment-setup-cortexa9hf-vfp-neon-dey-linux-gnueabi
 }
 
+#source fred toolchain
+fred()
+{
+    source /opt/muxos/0.2/environment-setup-armv7ahf-neon-mta-linux-gnueabi 
+}
 start_can()
 {
-    sudo ip link set can0 type can bitrate 250000
-    sudo ip link set can0 up
+    sudo ip link set $1 type can bitrate 250000
+    sudo ip link set $1 up
 
+}
+
+# Good for removing build artifacts and shit
+rinse_repo() 
+{
+    git clean -xfd
+    git submodule foreach --recursive git clean -xfd
+    git reset --hard
+    git submodule foreach --recursive git reset --hard
+    git submodule update --init --recursive
 }
 
 parse_git_branch() {
@@ -120,4 +135,18 @@ clean_up_branches(){
     git branch --merged >/tmp/merged-branches
     vim /tmp/merged-branches
     xargs git branch -d </tmp/merged-branches
+}
+
+h2d() {
+    echo -n "Dec: "
+    echo "obase=10; ibase=16; $1" | bc
+    echo -n "Bin: "
+    echo "obase=2; ibase=16; $1" | bc
+
+}
+d2h() {
+    echo -n "Hex: "
+    echo "obase=16; ibase=10; $1" | bc
+    echo -n "Bin: "
+    echo "obase=2; ibase=10; $1" | bc
 }
