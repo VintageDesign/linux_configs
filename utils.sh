@@ -108,7 +108,13 @@ dey()
 #source fred toolchain
 fred()
 {
-    source /opt/muxos/0.2/environment-setup-armv7ahf-neon-mta-linux-gnueabi 
+    source /opt/muxos/0.2/environment-setup-armv7ahf-neon-mta-linux-gnueabi
+}
+
+#source idf toolchain
+idf()
+{
+    source ~/esp/esp-idf/export.sh
 }
 start_can()
 {
@@ -118,7 +124,7 @@ start_can()
 }
 
 # Good for removing build artifacts and shit
-rinse_repo() 
+rinse_repo()
 {
     git clean -xfd
     git submodule foreach --recursive git clean -xfd
@@ -149,4 +155,9 @@ d2h() {
     echo "obase=16; ibase=10; $1" | bc
     echo -n "Bin: "
     echo "obase=2; ibase=10; $1" | bc
+}
+
+vpn()
+{
+    sudo systemctl $1 ravenvpn
 }
