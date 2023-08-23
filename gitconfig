@@ -1,0 +1,25 @@
+[pull]
+	rebase = true
+[core]
+	editor = vim
+	pager = delta
+    excludefiles= ~/.gitignore
+[commit]
+	verbose = true
+[interactive]
+	diffFilter = delta --color-only
+[add "interactive"]
+	useBuiltin = false
+[delta]
+	navigate = true
+	light = false
+[merge]
+	conflictstyle = diff3
+[diff]
+	colorMoved = default
+[init]
+	templatedir = ~/.git-templates
+[alias]
+	st = status
+[color]
+	ui = auto
