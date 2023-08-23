@@ -1,9 +1,3 @@
-" Start with a since colorscheme
-" colorscheme desert
-
-" Attempt to determine the type of a file based on its name and possibly its
-" contents. Use this to allow intelligent auto-indenting for each filetype,
-" and for plugins that are filetype specific.
 filetype plugin indent on
 
 " Enable syntax highlighting
@@ -57,8 +51,14 @@ set shiftwidth=4
 set softtabstop=4
 set expandtab
 
-" Set a column marker at 80 columns
-set colorcolumn=81
+" Set a column marker at 121 columns to match clion
+set colorcolumn=121
+
+" Set Text width to match color column
+set textwidth=120
+
+" Highlight cursor line
+set cursorline 
 
 " Map Y to act like D and C, i.e. to yank until EOL, rather than act as yy,
 " which is the default
@@ -67,9 +67,14 @@ map Y y$
 " Disable backup file creation
 set nobackup
 
+set clipboard=unnamedplus
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Spell-Checking
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+set spell
+highlight clear SpellBad
+highlight SpellBad ctermfg=255 ctermbg=196 guifg=#ff0000 guibg=#ffff00
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
