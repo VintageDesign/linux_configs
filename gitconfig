@@ -3,7 +3,7 @@
 [core]
 	editor = vim
 	pager = delta
-    excludefiles= ~/.gitignore
+        excludefiles= ~/.gitignore
 [commit]
 	verbose = true
 [interactive]
