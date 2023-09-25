@@ -110,6 +110,9 @@ alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
 
+# force vim to load vimrc -- for some reason it stopped working in 22.04
+#alias vim="vim -S ~/.vimrc"
+
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
@@ -145,7 +148,19 @@ function __sysroot_ps1() {
 }
 
 source ~/commands/utils.sh
-PS1="\[${RESET}${ORANGE}\]\$(__sysroot_ps1)\$(parse_git_branch) \[${RESET}\]${PS1}"
+
+function __raven_vpn_ps1() {
+   OLD_EXIT=$?
+   if sed 's/\x0/ /g' /proc/$(pgrep openconnect)/cmdline | grep "proxy.ravenind.com" >/dev/null; then
+       if ip route get 10.8.16.1 | grep tun >/dev/null; then
+           echo -en "(VPN)"
+       fi
+   fi
+   exit $OLD_EXIT
+}
+
+# If connected to VPN, prepend a red (Raven VPN) to the $PS1
+PS1="\[${RESET}${ORANGE}\]\$(__raven_vpn_ps1)\$(__sysroot_ps1)\$(parse_git_branch)\[${RESET}\]${PS1}"
 
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash

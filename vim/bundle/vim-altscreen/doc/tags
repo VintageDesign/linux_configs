@@ -1,0 +1,12 @@
+AltScreenControlZ	altscreen.txt	/*AltScreenControlZ*
+SetAltScreen	altscreen.txt	/*SetAltScreen*
+UnsetAltScreen	altscreen.txt	/*UnsetAltScreen*
+altscreen	altscreen.txt	/*altscreen*
+altscreen-about	altscreen.txt	/*altscreen-about*
+altscreen-changelog	altscreen.txt	/*altscreen-changelog*
+altscreen-contribute	altscreen.txt	/*altscreen-contribute*
+altscreen-functions	altscreen.txt	/*altscreen-functions*
+altscreen-keymappings	altscreen.txt	/*altscreen-keymappings*
+altscreen-license	altscreen.txt	/*altscreen-license*
+altscreen-quickstart	altscreen.txt	/*altscreen-quickstart*
+altscreen.txt	altscreen.txt	/*altscreen.txt*
