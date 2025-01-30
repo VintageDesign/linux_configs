@@ -10,6 +10,7 @@ let g:SignatureMarkerTextHLDynamic = 1
 let g:mundo_preview_bottom=1
 execute pathogen#infect()
 
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Theming.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -61,13 +62,13 @@ highlight SpellCap   ctermfg=8      ctermbg=2
 " Orange isn't one of the 16 colors, so it doesn't quite work right with Tilix :/
 highlight! link GruvboxOrange GruvboxYellowBold
 
-highlight Comment           cterm=italic ctermfg=243
-highlight CustomDoxyComment cterm=italic ctermfg=243
+highlight Comment           cterm=italic ctermfg=229 ctermbg=0
+highlight CustomDoxyComment cterm=italic ctermfg=0 ctermbg=10
 
 " Change Color when entering Insert Mode
-autocmd InsertEnter * highlight  CursorLine ctermbg=23
+autocmd InsertEnter * highlight  CursorLine ctermbg=232
 " Revert Color to default when leaving Insert Mode
-autocmd InsertLeave * highlight  CursorLine ctermbg=237 
+autocmd InsertLeave * highlight  CursorLine ctermbg=237
 
 " Default Cursorline Color
 highlight CursorLine        ctermbg=237
@@ -233,6 +234,11 @@ augroup gitCommitLineLength
     autocmd!
     autocmd FileType gitcommit setlocal colorcolumn=72
 augroup END
+augroup pythonLineLength
+    autocmd!
+    autocmd FileType python setlocal colorcolumn=150
+    autocmd FileType python setlocal textwidth=150
+augroup END
 set display=truncate
 
 " When creating a new window, make it equal sized to any currently open
@@ -242,190 +248,7 @@ set equalalways
 if !isdirectory($HOME."/.vim/undo")
     call mkdir($HOME."/.vim/undo", "", 0700)
 endif
-set undodir=~/.vim/undo
-set undofile
-nnoremap <F8> :MundoToggle<CR>
-
-" Set Nginx conf filetype
-augroup nginxFiletypeDetection
-    autocmd!
-    autocmd BufRead,BufNewFile *.nginx set ft=nginx
-    autocmd BufRead,BufNewFile */etc/nginx/* set ft=nginx
-    autocmd BufRead,BufNewFile */usr/local/nginx/conf/* set ft=nginx
-    autocmd BufRead,BufNewFile nginx.conf set ft=nginx
-    autocmd BufRead,BufNewFile nginx/*.conf set ft=nginx
-augroup END
-
-" Vim natively knows about Doxygen.
-let g:load_doxygen_syntax = 1
-let g:doxygen_enhanced_color = 0
-
-" Generate the binary *.spl files from the plaintext *.add files checked into Git.
-function! SetupSpellfile()
-    for d in glob('~/.vim/spell/*.add', 1, 1)
-        " This likely forces the generation of the binary .spl file. Until the
-        " performance becomes noticeable, that's acceptable. Otherwise, I think a
-        " git-hook, or a more sophisticated shell incantation to also _diff_ the
-        " sorted file against the original one, would be the approach to use.
-        if filereadable(d) && (!filereadable(d . '.spl') || getftime(d) > getftime(d . '.spl'))
-            silent exec 'mkspell! ' . fnameescape(d)
-        endif
-    endfor
-endfunction
-
-" Sort the spellfile, and remove duplicates right before Vim exits.
-"
-" NOTE: This relies on the vim-altscreen plugin (and requires myNoAltScreen augroup to be executed)
-" to prevent :execute commands getting printed to the "normal" screen, which, even if you use
-" "silent!", shoves the shell prompt to the bottom of the screen.
-function! SortSpellfile()
-    for d in glob('~/.vim/spell/*.add', 1, 1)
-        silent! execute '!sort --unique ' shellescape(d) ' --output ' shellescape(d)
-    endfor
-endfunction
-
-augroup setupSpellfileAfterStart
-    autocmd!
-    autocmd VimEnter * call SetupSpellfile()
-augroup END
-
-augroup sortSpellfileBeforeExit
-    autocmd!
-    autocmd VimLeave * call SortSpellfile()
-augroup END
-
-" Don't spellcheck everything, instead check a restricted subset of filetypes.
-set spelllang=en_us
-set spellfile=~/.vim/spell/en.utf-8.add
-" This is a vim 8.2 feature.
-if exists("&spelloptions")
-    set spelloptions=camel
-endif
-
-nnoremap <F7> :setlocal spell! spell?<CR>
-
-" ! - save and restore global variables
-" ' - Maximum number of files to remember marks from
-" / - Maximum number of items in the search pattern history to remember
-" : - Maximum number of items in the command history to remember
-" < - Maximum number of lines saved for each register
-" s - Maximum size of registers in Kbytes
-" h - Disable hlsearch when loading viminfo
-set viminfo=!,'500,/5000,:5000,<500,s1000,h
-set viminfofile=~/.vim/viminfo
-augroup doNotUseViminfoFor
-    autocmd!
-    " Using a viminfo file restores the last cursor position.
-    " This is awkward for commit messages and the git-rebase-todo. So disable it.
-    autocmd FileType gitcommit,gitrebase setlocal viminfo=
-augroup END
-
-augroup commentarySettings
-    autocmd!
-    autocmd FileType c,cpp set comments^=:///,://!
-    autocmd FileType c,cpp setlocal commentstring=//\ %s
-    autocmd FileType nginx,qmake setlocal commentstring=#\ %s
-augroup END
-
-function! s:paste_toggled(new, old) abort
-    if a:new && !a:old
-        let b:saved_foldexpr = &foldexpr
-        let &l:foldexpr = ''
-    elseif !a:new && a:old && exists('b:saved_foldexpr')
-        let &l:foldexpr = b:saved_foldexpr
-        unlet b:saved_foldexpr
-    endif
-endfunc
-
-" Disable foldexpr when pasting to fix slow pasting performance.
-augroup FastPaste
-    autocmd!
-    autocmd OptionSet paste call s:paste_toggled(v:option_new, v:option_old)
-augroup END
-set pastetoggle=<F5>
-
-augroup autoOpenQuickFixAfterMake
-    autocmd!
-    autocmd QuickFixCmdPost make belowright cwindow
-augroup END
-
-let g:termdebug_wide = 1
-augroup overrideRustGdb
-    autocmd!
-    autocmd FileType rust let g:termdebugger = 'rust-gdb'
-augroup END
-
-augroup overrideYamlIndentation
-    autocmd!
-    autocmd FileType yaml setlocal ts=4 sts=4 sw=4 expandtab
-augroup END
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Netrw
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Close netrw if last window open.
-augroup netrw_close
-    autocmd!
-    autocmd WinEnter * if winnr("$") == 1 && getbufvar(winbufnr(winnr()), "&filetype") == "netrw" | q | endif
-augroup END
-
-" Open netrw to the current file's directory
-"
-" I originally wanted it to open the CWD, and expand the tree to reveal the
-" current file, but it appears that's not possible. So the next best thing is
-" to open the current file's directory, and use "-" to open the parent
-" directory.
-command! NetrwFind let @/=expand("%:t") | execute 'Lexplore' expand("%:h") | normal n
-
-function! ToggleNetrw()
-    let i = bufnr("$")
-    let wasOpen = 0
-    while (i >= 1)
-        if(getbufvar(i, "&filetype") == "netrw")
-            silent exe "bwipeout " . i
-            let wasOpen = 1
-        endif
-        let i-=1
-    endwhile
-    if !wasOpen
-        silent NetrwFind
-    endif
-endfunction
-
-" Use a tree display
-let g:netrw_liststyle = 3
-" Don't display to banner at the top
-let g:netrw_banner = 0
-" Open selected files in the previous window
-let g:netrw_browse_split = 4
-let g:netrw_altv = 1
-" Set netrw width percentage
-let g:netrw_winsize = 18
-" Enable the following hide patterns.
-let g:netrw_hide = 1
-" Hidden patterns. Respect gitignores and dotfiles.
-" let g:netrw_list_hide = netrw_gitignore#Hide()
-" BUG: netrw_gitignore#Hide() interprets '*.o' from the .gitignore as '.*\.o', which matches unexpected things
-" let g:netrw_list_hide = substitute(g:netrw_list_hide, '\.\*\\\.o,', '', '')
-let g:netrw_list_hide = ''
-let g:netrw_list_hide .= ',\(^\|\s\s\)\zs\.\S\+'
-let g:netrw_list_hide .= ',.*\.swp$'
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" ALE
-"
-"   <F1> - run all available fixers, in the order specified by g:ale_fixers
-"   <F2> - show more details on lint closest to cursor
-"   <F3> - find references
-"   <F4> - toggle header/source (Qt Creator shortcut)
-"   :ALESymbolSearch - search for symbol from LSP
-"   :ALERename - rename symbol under cursor
-"   :ALEFileRename - rename file and fix imports
-"   :ALEDocumentation - Preview window of documentation for the current symbol
-"   gd - go to definition
+"definition
 "   gD - go to type definition
 "   ]p,[p - next/previous problem
 "
@@ -479,9 +302,6 @@ let g:ale_cpp_clangd_options = '
 
 let g:ale_cmake_cmake_lint_options = '--config-files .cmake-format.yaml'
 
-" Install with
-"     rustup +nightly component add rust-analyzer-preview
-let g:ale_rust_analyzer_executable = "/home/nots/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/rust-analyzer"
 
 let g:ale_rust_analyzer_config = {
     \ 'cargo': {'loadOutDirsFromCheck': v:true},
