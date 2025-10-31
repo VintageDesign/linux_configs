@@ -1,0 +1,216 @@
+#!/bin/bash
+##################
+# Useful functions - to be sourced in .bashrc
+##################
+
+# go up n levels
+up()
+{
+    TMP=$PWD
+    LEVELS=${1:-1}
+    for _ in $(seq "$LEVELS"); do
+        cd ..
+    done
+    # $OLDPWD allows for `cd -`
+    export OLDPWD=$TMP
+}
+
+# View a random man page
+randman()
+{
+    man "$(ls -1 /usr/share/man/man?/ | shuf -n1 | cut -d. -f1)"
+}
+
+# a convenience wrapper around window.py
+window()
+{
+    python3 ~/bin/window.py "$@"
+}
+
+# attempt to rhyme the given word
+rhyme()
+{
+    { cat /usr/share/dict/words; printf %s\\n "$1"; } | rev | sort | rev | grep -FxC15 -e "${1?}" | grep -Fxve "$1" | shuf -n1;
+}
+
+# grabs the local IP
+localip()
+{
+    echo "local IP(s):"
+    echo ""
+    # ifconfig | perl -nle'/dr:(\S+)/ && print $1'
+    echo "local IP: $(hostname -I)"
+}
+
+# grabs the external IP
+pblicip()
+{
+    echo "public IP:"
+    echo ""
+    curl -s 'ipecho.net/plain'
+    echo ""
+}
+
+# sorts directories by size
+dsort()
+{
+    du -a -d 1 -h | sort -h
+}
+
+# completely remove a package - probably shouldn't use
+completely_remove_package()
+{
+    apt-get purge "$("apt-cache depends $1 | awk '{ print $2 }' | tr '\n' ' '")"
+}
+
+# Gives number of additions author has made in current git repo
+additions()
+{
+    git log --author="$*" --pretty=tformat: --numstat |                        \
+        awk '{ add += $1; subs += $2; loc += $1 - $2 } END                    \
+             { printf "added lines: %s removed lines: %s total lines: %s\n", add, subs, loc }' -
+}
+
+# converts CRLF endings to LF endings
+dos2unix()
+{
+    sed -i 's/.$//' "$1"
+}
+
+# converts LF endings to CRLF endings
+unix2dos()
+{
+    # requires GNU sed
+    sed -i 's/$/\r/' "$1"
+}
+
+
+
+# Browse git log
+gl() {
+    git log --graph --color=always \
+        --format="%C(auto)%h%d %s %C(black)%C(bold)%an, %cr" "$@" |
+    fzf --ansi --no-sort --reverse --preview  "echo {} | grep -o '[a-f0-9]\{7\}' | head -1 | xargs -I % sh -c 'git show --color=always %'" \
+        --bind "enter:execute:
+                (grep -o '[a-f0-9]\{7\}' | head -1 |
+                xargs -I % sh -c 'git show --color=always % | less -R') << 'FZF-EOF'
+                {}
+FZF-EOF"
+}
+
+
+#source daisy toolchain
+dey()
+{
+    source /opt/dey/1.6.11/environment-setup-cortexa9hf-vfp-neon-dey-linux-gnueabi
+    unset PYTHON_HOME
+}
+
+#source cnhos toolchain
+cnhos()
+{
+    source /opt/cnh/pegasus-sdk-6.0.0/environment-setup-cortexa72-cortexa53-crypto-poky-linux
+}
+
+#source fred toolchain
+fred()
+{
+    source /opt/muxos/0.2/environment-setup-armv7ahf-neon-mta-linux-gnueabi
+}
+
+gladys()
+{
+    source /opt/fsl-auto/39.0/environment-setup-cortexa53-crypto-fsl-linux
+}
+
+#source idf toolchain
+idf()
+{
+    source ~/git/esp-idf/export.sh
+}
+start_can()
+{
+    sudo ip link set "$1" type can bitrate "$2" sample-point 0.812
+    sudo ip link set "$1" up
+
+}
+
+# Good for removing build artifacts and shit
+rinse_repo()
+{
+    git clean -xfd
+    git submodule foreach --recursive git clean -xfd
+    git reset --hard
+    git submodule foreach --recursive git reset --hard
+    git submodule update --init --recursive
+}
+
+parse_git_branch() {
+     git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+}
+
+clean_up_branches(){
+    git branch --merged >/tmp/merged-branches
+    vim /tmp/merged-branches
+    xargs git branch -d </tmp/merged-branches
+}
+
+h2d() {
+    echo -n "Dec: "
+    echo "obase=10; ibase=16; $1" | bc
+    echo -n "Bin: "
+    echo "obase=2; ibase=16; $1" | bc
+
+}
+d2h() {
+    echo -n "Hex: "
+    echo "obase=16; ibase=10; $1" | bc
+    echo -n "Bin: "
+    echo "obase=2; ibase=10; $1" | bc
+}
+
+vpn()
+{
+    systemctl --user $1 cnh-gp-vpn
+}
+
+simmy()
+{
+    if [ "$1" = "start" ]; then
+    ~/git/autonomy/simmy/simmy.sh --up rdm
+    elif [ "$1" = "dev" ]; then
+    ~/git/autonomy/simmy/simmy.sh --dev-shell rdm "$2"
+    fi
+}
+
+replace()
+{
+    find ./ -type f -exec sed -i "s/$1/$2/g" {} \;
+}
+
+remote-screenshot() {
+    local -r hostname="$1"
+    local -r filename="${2:-screenshot-$(date '+%Y-%m-%dT%H-%M-%S').png}"
+ 
+    echo "Taking screenshot $filename on $hostname ..."
+    ssh "$hostname" import -display 0:0 -window root "'$filename'"
+    echo "Downloading screenshot ..."
+    rsync "$hostname:${filename}" .
+}
+
+deploy_cnhos()
+{
+rsync -avzh --chown root:root \
+     --exclude='include*' \
+     --exclude='samples' \
+     --exclude='*.a' \
+     --exclude='tools' \
+     --exclude='*.dbg' \
+     --exclude='share/*Lib' \
+     --exclude='*.flags' \
+     --exclude='*/breakpad-syms/*' \
+     "$2" \
+     root@"$1":/
+
+
+}
